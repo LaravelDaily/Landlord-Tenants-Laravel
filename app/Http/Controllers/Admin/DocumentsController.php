@@ -21,6 +21,9 @@ class DocumentsController extends Controller
      */
     public function index()
     {
+        if (! Gate::allows('document_access')) {
+            return abort(401);
+        }
 
         if (request('show_deleted') == 1) {
             if (! Gate::allows('document_delete')) {
@@ -41,21 +44,29 @@ class DocumentsController extends Controller
      */
     public function create()
     {
+        if (! Gate::allows('document_create')) {
+            return abort(401);
+        }
+
         $properties = \App\Property::get()->pluck('name', 'id');
+
         return view('admin.documents.create', compact('properties'));
     }
 
     /**
      * Store a newly created Document in storage.
      *
-     * @param  \App\Http\Requests\StoreDocumentsRequest  $request
+     * @param  \App\Http\Requests\StoreDocumentsRequest $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreDocumentsRequest $request)
     {
-        $request = $this->saveFiles($request);
-        $document = Document::create($request->all());
+        if (! Gate::allows('document_create')) {
+            return abort(401);
+        }
 
+        $request  = $this->saveFiles($request);
+        $document = Document::create($request->all());
 
 
         return redirect()->route('admin.documents.index');
@@ -65,13 +76,17 @@ class DocumentsController extends Controller
     /**
      * Show the form for editing Document.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
+        if (! Gate::allows('document_edit')) {
+            return abort(401);
+        }
+
         $properties = \App\Property::get()->pluck('name', 'id');
-        $document = Document::findOrFail($id);
+        $document   = Document::findOrFail($id);
 
         return view('admin.documents.edit', compact('document', 'properties'));
     }
@@ -79,16 +94,19 @@ class DocumentsController extends Controller
     /**
      * Update Document in storage.
      *
-     * @param  \App\Http\Requests\UpdateDocumentsRequest  $request
-     * @param  int  $id
+     * @param  \App\Http\Requests\UpdateDocumentsRequest $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateDocumentsRequest $request, $id)
     {
-        $request = $this->saveFiles($request);
+        if (! Gate::allows('document_edit')) {
+            return abort(401);
+        }
+
+        $request  = $this->saveFiles($request);
         $document = Document::findOrFail($id);
         $document->update($request->all());
-
 
 
         return redirect()->route('admin.documents.index');
@@ -98,11 +116,15 @@ class DocumentsController extends Controller
     /**
      * Display Document.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
+        if (! Gate::allows('document_view')) {
+            return abort(401);
+        }
+
         $document = Document::findOrFail($id);
 
         return view('admin.documents.show', compact('document'));
@@ -112,11 +134,15 @@ class DocumentsController extends Controller
     /**
      * Remove Document from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
+        if (! Gate::allows('document_delete')) {
+            return abort(401);
+        }
+
         $document = Document::findOrFail($id);
         $document->delete();
 
@@ -130,6 +156,10 @@ class DocumentsController extends Controller
      */
     public function massDestroy(Request $request)
     {
+        if (! Gate::allows('document_delete')) {
+            return abort(401);
+        }
+
         if ($request->input('ids')) {
             $entries = Document::whereIn('id', $request->input('ids'))->get();
 
@@ -143,11 +173,15 @@ class DocumentsController extends Controller
     /**
      * Restore Document from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function restore($id)
     {
+        if (! Gate::allows('document_delete')) {
+            return abort(401);
+        }
+
         $document = Document::onlyTrashed()->findOrFail($id);
         $document->restore();
 
@@ -157,11 +191,15 @@ class DocumentsController extends Controller
     /**
      * Permanently delete Document from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function perma_del($id)
     {
+        if (! Gate::allows('document_delete')) {
+            return abort(401);
+        }
+
         $document = Document::onlyTrashed()->findOrFail($id);
         $document->forceDelete();
 

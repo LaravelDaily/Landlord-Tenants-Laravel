@@ -21,7 +21,9 @@ class PropertiesController extends Controller
      */
     public function index()
     {
-
+        if (! Gate::allows('property_access')) {
+            return abort(401);
+        }
 
         if (request('show_deleted') == 1) {
             if (! Gate::allows('property_delete')) {
@@ -42,18 +44,26 @@ class PropertiesController extends Controller
      */
     public function create()
     {
+        if (! Gate::allows('property_create')) {
+            return abort(401);
+        }
+
         return view('admin.properties.create');
     }
 
     /**
      * Store a newly created Property in storage.
      *
-     * @param  \App\Http\Requests\StorePropertiesRequest  $request
+     * @param  \App\Http\Requests\StorePropertiesRequest $request
      * @return \Illuminate\Http\Response
      */
     public function store(StorePropertiesRequest $request)
     {
-        $request = $this->saveFiles($request);
+        if (! Gate::allows('property_create')) {
+            return abort(401);
+        }
+
+        $request  = $this->saveFiles($request);
         $property = Property::create($request->all() + ['user_id' => auth()->user()->id]);
 
         return redirect()->route('admin.properties.index');
@@ -63,11 +73,15 @@ class PropertiesController extends Controller
     /**
      * Show the form for editing Property.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
+        if (! Gate::allows('property_edit')) {
+            return abort(401);
+        }
+
         $property = Property::findOrFail($id);
 
         return view('admin.properties.edit', compact('property'));
@@ -76,17 +90,19 @@ class PropertiesController extends Controller
     /**
      * Update Property in storage.
      *
-     * @param  \App\Http\Requests\UpdatePropertiesRequest  $request
-     * @param  int  $id
+     * @param  \App\Http\Requests\UpdatePropertiesRequest $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(UpdatePropertiesRequest $request, $id)
     {
-        $request = $this->saveFiles($request);
+        if (! Gate::allows('property_edit')) {
+            return abort(401);
+        }
+
+        $request  = $this->saveFiles($request);
         $property = Property::findOrFail($id);
         $property->update($request->all());
-
-
 
         return redirect()->route('admin.properties.index');
     }
@@ -95,14 +111,18 @@ class PropertiesController extends Controller
     /**
      * Display Property.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $documents = \App\Document::where('property_id', $id)->get();$notes = \App\Note::where('property_id', $id)->get();
+        if (! Gate::allows('property_view')) {
+            return abort(401);
+        }
 
-        $property = Property::findOrFail($id);
+        $documents = \App\Document::where('property_id', $id)->get();
+        $notes     = \App\Note::where('property_id', $id)->get();
+        $property  = Property::findOrFail($id);
 
         return view('admin.properties.show', compact('property', 'documents', 'notes'));
     }
@@ -111,11 +131,15 @@ class PropertiesController extends Controller
     /**
      * Remove Property from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
+        if (! Gate::allows('property_delete')) {
+            return abort(401);
+        }
+
         $property = Property::findOrFail($id);
         $property->delete();
 
@@ -129,6 +153,10 @@ class PropertiesController extends Controller
      */
     public function massDestroy(Request $request)
     {
+        if (! Gate::allows('property_delete')) {
+            return abort(401);
+        }
+
         if ($request->input('ids')) {
             $entries = Property::whereIn('id', $request->input('ids'))->get();
 
@@ -142,11 +170,15 @@ class PropertiesController extends Controller
     /**
      * Restore Property from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function restore($id)
     {
+        if (! Gate::allows('property_delete')) {
+            return abort(401);
+        }
+
         $property = Property::onlyTrashed()->findOrFail($id);
         $property->restore();
 
@@ -156,11 +188,15 @@ class PropertiesController extends Controller
     /**
      * Permanently delete Property from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function perma_del($id)
     {
+        if (! Gate::allows('property_delete')) {
+            return abort(401);
+        }
+
         $property = Property::onlyTrashed()->findOrFail($id);
         $property->forceDelete();
 
