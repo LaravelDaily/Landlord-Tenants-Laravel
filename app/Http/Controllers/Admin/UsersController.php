@@ -18,9 +18,11 @@ class UsersController extends Controller
      */
     public function index()
     {
+        if (! Gate::allows('user_access')) {
+            return abort(401);
+        }
 
-
-                $users = User::all();
+        $users = User::all();
 
         return view('admin.users.index', compact('users'));
     }
@@ -32,9 +34,11 @@ class UsersController extends Controller
      */
     public function create()
     {
-        
-        $roles = \App\Role::get()->pluck('title', 'id');
+        if (! Gate::allows('user_create')) {
+            return abort(401);
+        }
 
+        $roles = \App\Role::get()->pluck('title', 'id');
 
         return view('admin.users.create', compact('roles'));
     }
@@ -42,15 +46,17 @@ class UsersController extends Controller
     /**
      * Store a newly created User in storage.
      *
-     * @param  \App\Http\Requests\StoreUsersRequest  $request
+     * @param  \App\Http\Requests\StoreUsersRequest $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreUsersRequest $request)
     {
+        if (! Gate::allows('user_create')) {
+            return abort(401);
+        }
+
         $user = User::create($request->all());
         $user->role()->sync(array_filter((array)$request->input('role')));
-
-
 
         return redirect()->route('admin.users.index');
     }
@@ -59,16 +65,17 @@ class UsersController extends Controller
     /**
      * Show the form for editing User.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        
+        if (! Gate::allows('user_edit')) {
+            return abort(401);
+        }
+
         $roles = \App\Role::get()->pluck('title', 'id');
-
-
-        $user = User::findOrFail($id);
+        $user  = User::findOrFail($id);
 
         return view('admin.users.edit', compact('user', 'roles'));
     }
@@ -76,17 +83,19 @@ class UsersController extends Controller
     /**
      * Update User in storage.
      *
-     * @param  \App\Http\Requests\UpdateUsersRequest  $request
-     * @param  int  $id
+     * @param  \App\Http\Requests\UpdateUsersRequest $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateUsersRequest $request, $id)
     {
+        if (! Gate::allows('user_edit')) {
+            return abort(401);
+        }
+
         $user = User::findOrFail($id);
         $user->update($request->all());
         $user->role()->sync(array_filter((array)$request->input('role')));
-
-
 
         return redirect()->route('admin.users.index');
     }
@@ -95,16 +104,19 @@ class UsersController extends Controller
     /**
      * Display User.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        
-        $roles = \App\Role::get()->pluck('title', 'id');
-$notes = \App\Note::where('user_id', $id)->get();$documents = \App\Document::where('user_id', $id)->get();
+        if (! Gate::allows('user_view')) {
+            return abort(401);
+        }
 
-        $user = User::findOrFail($id);
+        $roles     = \App\Role::get()->pluck('title', 'id');
+        $notes     = \App\Note::where('user_id', $id)->get();
+        $documents = \App\Document::where('user_id', $id)->get();
+        $user      = User::findOrFail($id);
 
         return view('admin.users.show', compact('user', 'notes', 'documents'));
     }
@@ -113,11 +125,15 @@ $notes = \App\Note::where('user_id', $id)->get();$documents = \App\Document::whe
     /**
      * Remove User from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
+        if (! Gate::allows('user_delete')) {
+            return abort(401);
+        }
+
         $user = User::findOrFail($id);
         $user->delete();
 
@@ -131,6 +147,10 @@ $notes = \App\Note::where('user_id', $id)->get();$documents = \App\Document::whe
      */
     public function massDestroy(Request $request)
     {
+        if (! Gate::allows('user_delete')) {
+            return abort(401);
+        }
+
         if ($request->input('ids')) {
             $entries = User::whereIn('id', $request->input('ids'))->get();
 

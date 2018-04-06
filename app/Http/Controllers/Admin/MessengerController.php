@@ -36,8 +36,9 @@ class MessengerController extends Controller
     public function create()
     {
         $users = [];
-        if (!auth()->user()->property_id) {
-            $users = User::whereIn('property_id', Property::where('user_id', auth()->user()->id)->pluck('id'))->pluck('name', 'id');
+        if (! auth()->user()->property_id) {
+            $users = User::whereIn('property_id',
+                Property::where('user_id', auth()->user()->id)->pluck('id'))->pluck('name', 'id');
         } else {
             $users = User::where('id', auth()->user()->property->user_id)->pluck('name', 'id');
         }
@@ -87,8 +88,8 @@ class MessengerController extends Controller
 
         $topic->load('receiver', 'sender', 'messages');
         $unreadMessages = [];
-        foreach($topic->messages as $message) {
-            if($message->unread($topic)) {
+        foreach ($topic->messages as $message) {
+            if ($message->unread($topic)) {
                 $unreadMessages[] = $message->id;
             }
         }
