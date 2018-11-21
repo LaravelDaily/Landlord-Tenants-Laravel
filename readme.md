@@ -4,7 +4,7 @@ It is a demo project for [live-coding session on YouTube](https://www.youtube.co
 
 Partly demonstrating what can be generated with [QuickAdminPanel](https://quickadminpanel.com) tool.
 
-![Landlords_tenants screenshot](http://webcoderpro.com/landlords-tenants.png)
+![Landlords_tenants screenshot](https://laraveldaily.com/wp-content/uploads/2018/11/landlords-tenants.png)
 
 ## How to use
 
@@ -27,3 +27,4 @@ Basically, feel free to use and re-use any way you want.
 - Follow our [Twitter](https://twitter.com/dailylaravel) and [Blog](http://laraveldaily.com/blog)
 - Subscribe to our [newsletter with 20+ Laravel links every Thursday](http://laraveldaily.com/weekly-laravel-newsletter/)
 - Subscribe to our [YouTube channel Laravel Business](https://www.youtube.com/channel/UCTuplgOBi6tJIlesIboymGA)
+- Enroll in our [Laravel Online Courses](https://laraveldaily.teachable.com/)
